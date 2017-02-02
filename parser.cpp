@@ -32,7 +32,7 @@ void ParserTableOfDouble::read()
     foreach (QString path, pathToFiles) {
         QFile file(QDir::currentPath()+path);
         if(!file.open(QIODevice::ReadOnly|QIODevice::Text)){
-            qDebug()<<"Невозможно открыть файл";
+            qDebug()<<"Невозможно открыть файл: "<<path;
             break;
         }
         QTextStream stream(&file);
@@ -40,7 +40,6 @@ void ParserTableOfDouble::read()
         int column=0;
         while(!stream.atEnd()){
             QString line=stream.readLine();
-            qDebug()<<line;
             int positionInLine = 0;
             if((regular.indexIn(line,positionInLine)) != -1){
                 QVector<double> col;
