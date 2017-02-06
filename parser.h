@@ -5,7 +5,8 @@
 #include <QTextStream>
 #include <QFile>
 #include <QDir>
-namespace parser {
+#include "io_structs.h"
+namespace bvsk_cfg {
     const QString DEFAULT_COMMENT="#";
     const QString DEFAULT_REGULAR_DOUBLE="(-?\\d+(?:[.,]\\d+)?)";
 }
@@ -18,32 +19,23 @@ public:
     virtual void accept(Visitor* visitor)=0;
     virtual ~Parser();
 };
-//ParserTableOfDouble - Парсер данных типа double
-//Выходными данными парсера является Вектор векторов (QVector< QVector<double> >)
+//ParserTableOfDouble - Парсер данных типа double, парсить таблицу double-ов разделенных пробелами
+//Выходными данными парсера является Вектор векторов (std::vector< std::vector<double> >)
 class ParserTableOfDouble: public Parser{
 private:
     QStringList pathToFiles;
-    QVector< QVector<double> > data;
+    std::vector< std::vector<double> > data;
     QRegExp regular;
     QString comment;
+    unsigned int countFiles;
     void initialize();
 public:
     ParserTableOfDouble(const QStringList &files);
-    QVector< QVector<double> >* getData();
+    std::vector< std::vector<double> >* getData();
     // Reader interface
 public:
     void read();
     void accept(Visitor *visitor);
-};
-//Структура выходных данных после парсинга файла калибровочных коэффициентов
-struct CalibrateData{
-    struct FormatStr{
-        double Acu;
-        double Bcu;
-        double Aizm;
-        double Bizm;
-    };
-    QMap<int,FormatStr> data;
 };
 
 //Класс Visitor - реализация паттерна посетитель, необходим для обхода наследников класса Parser
@@ -51,16 +43,16 @@ class Visitor{
 public:
     virtual void visit(ParserTableOfDouble *reader)=0;
 };
-//GetterCalibrateData - для преобразования данных из парсера в удобный вид (CalibrateData) для дальнейшей обработки
-class GetterCalibrateData: public Visitor{
+//GetterInputData - для преобразования данных из парсера в удобный вид (InputData) для дальнейшей обработки
+class GetterInputData: public Visitor{
 private:
-    CalibrateData d;
+    bvsk_cfg::InputData d;
 public:
     void visit(ParserTableOfDouble *reader);
-    CalibrateData* dataCalibrateTextReader();
+    bvsk_cfg::InputData* getInputData();
 };
-//CheckerCalibrateData - для проверки протокола входных данных
-class CheckerCalibrateData: public Visitor{
+//CheckerInputData - для проверки протокола входных данных
+class CheckerInputData: public Visitor{
 private:
     bool CheckisValid;
     // Visitor interface
@@ -69,4 +61,5 @@ public:
     QString info();
     bool isValid();
 };
+
 #endif // PARSER_H

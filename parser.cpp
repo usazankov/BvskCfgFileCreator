@@ -12,8 +12,8 @@ Parser::~Parser()
 
 void ParserTableOfDouble::initialize()
 {
-    comment=parser::DEFAULT_COMMENT;
-    regular.setPattern(parser::DEFAULT_REGULAR_DOUBLE);
+    comment=bvsk_cfg::DEFAULT_COMMENT;
+    regular.setPattern(bvsk_cfg::DEFAULT_REGULAR_DOUBLE);
 }
 
 ParserTableOfDouble::ParserTableOfDouble(const QStringList &files):Parser()
@@ -22,7 +22,7 @@ ParserTableOfDouble::ParserTableOfDouble(const QStringList &files):Parser()
     initialize();
 }
 
-QVector<QVector<double> > *ParserTableOfDouble::getData()
+std::vector<std::vector<double> > *ParserTableOfDouble::getData()
 {
     return &data;
 }
@@ -42,7 +42,7 @@ void ParserTableOfDouble::read()
             QString line=stream.readLine();
             int positionInLine = 0;
             if((regular.indexIn(line,positionInLine)) != -1){
-                QVector<double> col;
+                std::vector<double> col;
                 column=0;
                 while((positionInLine = regular.indexIn(line,positionInLine)) != -1) {
                     QString cap = regular.cap(1);
@@ -55,14 +55,6 @@ void ParserTableOfDouble::read()
             }
         }
     }
-    qDebug()<<"count vectors: "<<data.count();
-    foreach (QVector<double> v, data) {
-        QString a;
-        foreach (double d, v) {
-            a+=QString::number(d)+" ";
-        }
-        qDebug()<<a;
-    }
 }
 
 void ParserTableOfDouble::accept(Visitor *visitor)
@@ -70,23 +62,57 @@ void ParserTableOfDouble::accept(Visitor *visitor)
     visitor->visit(this);
 }
 
-void GetterCalibrateData::visit(ParserTableOfDouble *reader)
+void GetterInputData::visit(ParserTableOfDouble *reader)
 {
-
+    using namespace std;
+    using namespace bvsk_cfg;
+    std::vector< std::vector<double> > *data=reader->getData();
+    int previous_Bcu=0;
+    int current_Bcu=0;
+    int count_sectors=0;
+    std::vector<InputData::FormatStr> temp;
+    foreach (std::vector<double> row, *data) {
+        InputData::FormatStr line;
+        for(unsigned int i=0;i<row.size();++i){
+            switch (i) {
+            case 0:
+                line.Acu=row[i];
+                break;
+            case 1:
+                line.Bcu=row[i];
+                current_Bcu=row[i];
+                break;
+            case 2:
+                line.Aizm=row[i];
+                break;
+            case 3:
+                line.Bizm=row[i];
+                break;
+            default:
+                break;
+            }
+        }
+        //Загоняем в map если: текущее значение Bcu не равно предыдущему и при этом текущая строка не равна первой
+        if((current_Bcu!=previous_Bcu&&(data->front()!=row))||(data->back()==row)){
+            d.data[count_sectors++]=temp;
+            temp.clear();
+        }
+        previous_Bcu=current_Bcu;
+        temp.push_back(line);
+    }
 }
 
-CalibrateData *GetterCalibrateData::dataCalibrateTextReader()
+bvsk_cfg::InputData *GetterInputData::getInputData()
 {
-
     return &d;
 }
 
-void CheckerCalibrateData::visit(ParserTableOfDouble *reader)
+void CheckerInputData::visit(ParserTableOfDouble *reader)
 {
 
 }
 
-QString CheckerCalibrateData::info()
+QString CheckerInputData::info()
 {
-
+    return "";
 }
