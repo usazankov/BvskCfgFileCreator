@@ -46,10 +46,10 @@ public:
 //GetterInputData - для преобразования данных из парсера в удобный вид (InputData) для дальнейшей обработки
 class GetterInputData: public Visitor{
 private:
-    bvsk_cfg::InputData d;
+    InputCalibrateData d;
 public:
     void visit(ParserTableOfDouble *reader);
-    bvsk_cfg::InputData* getInputData();
+    InputCalibrateData* getInputData();
 };
 //CheckerInputData - для проверки протокола входных данных
 class CheckerInputData: public Visitor{

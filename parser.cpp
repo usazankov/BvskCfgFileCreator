@@ -70,39 +70,44 @@ void GetterInputData::visit(ParserTableOfDouble *reader)
     int previous_Bcu=0;
     int current_Bcu=0;
     int count_sectors=0;
-    std::vector<InputData::FormatStr> temp;
-    foreach (std::vector<double> row, *data) {
-        InputData::FormatStr line;
-        for(unsigned int i=0;i<row.size();++i){
+    std::vector<InputCalibrateData::FormatStr> temp;
+    for(unsigned int j=0;j<data->size();++j) {
+        InputCalibrateData::FormatStr line;
+        for(unsigned int i=0;i<(*data)[j].size();++i){
             switch (i) {
             case 0:
-                line.Acu=row[i];
+                line.Acu=(*data)[j][i];
                 break;
             case 1:
-                line.Bcu=row[i];
-                current_Bcu=row[i];
+                line.Bcu=(*data)[j][i];
+                current_Bcu=(*data)[j][i];
                 break;
             case 2:
-                line.Aizm=row[i];
+                line.Aizm=(*data)[j][i];
                 break;
             case 3:
-                line.Bizm=row[i];
+                line.Bizm=(*data)[j][i];
                 break;
             default:
                 break;
             }
         }
         //Загоняем в map если: текущее значение Bcu не равно предыдущему и при этом текущая строка не равна первой
-        if((current_Bcu!=previous_Bcu&&(data->front()!=row))||(data->back()==row)){
+        if((current_Bcu!=previous_Bcu&&(j!=0))||j==data->size()-1){
+            if(j==data->size()-1)
+                temp.push_back(line);//Для последней строки
             d.data[count_sectors++]=temp;
             temp.clear();
         }
-        previous_Bcu=current_Bcu;
         temp.push_back(line);
+        previous_Bcu=current_Bcu;
     }
+    /*for(unsigned int i=0;i<d.data.size(); ++i) {
+        cout<<"size_parsing="<<d.data[i].size()<<endl;
+    }*/
 }
 
-bvsk_cfg::InputData *GetterInputData::getInputData()
+InputCalibrateData *GetterInputData::getInputData()
 {
     return &d;
 }

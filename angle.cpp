@@ -82,14 +82,3 @@ Angle Angle::operator-(const Angle &a)
     return temp;
 }
 
-std::ostream &bvsk_cfg::operator <<(std::ostream &os, const Angle &angle)
-{
-    os<<angle.toDegrees();
-    return os;
-}
-
-QDebug &bvsk_cfg::operator <<(QDebug &qdbg, const Angle &angle)
-{
-    qdbg<<angle.toDegrees();
-    return qdbg;
-}

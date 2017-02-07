@@ -21,10 +21,15 @@ public:
     Angle& operator=(double degrees);
     Angle operator+(const Angle& a);
     Angle operator-(const Angle& a);
+    friend std::ostream &operator <<(std::ostream &os, const Angle &angle){
+        os<<angle.toDegrees();
+        return os;
+    }
+    friend QDebug &operator <<(QDebug &qdbg, const Angle &angle){
+        qdbg<<angle.toDegrees();
+        return qdbg;
+    }
 };
-namespace bvsk_cfg {
-std::ostream &operator <<(std::ostream &os, const Angle &angle);
-QDebug &operator <<(QDebug &qdbg, const Angle &angle);
-}
+
 
 #endif // ANGLE_H

@@ -7,13 +7,13 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
     QStringList list;
-    list<<QString("/B45.txt")<<"/B50.txt"<<"/B55.txt"<<"/B60.txt"<<"/B65.txt"<<"/B70.txt"<<"/B75.txt"<<"/B80.txt"<<"/B85.txt";
+    list<<"/B45.txt"<<"/B50.txt"<<"/B55.txt"<<"/B60.txt"<<"/B65.txt"<<"/B70.txt"<<"/B75.txt"<<"/B80.txt";
     using namespace bvsk_cfg;
     Parser* reader=new ParserTableOfDouble(list);
     reader->read();
     GetterInputData getter;
     reader->accept(&getter);
-    InputData *d=getter.getInputData();
+    InputCalibrateData *d=getter.getInputData();
     CalculatorCalibrateData calc(d);
     calc.process();
     /*DisplayCalibrateData funct;
