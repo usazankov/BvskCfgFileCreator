@@ -3,7 +3,6 @@
 #include <vector>
 #include "angle.h"
 
-
 //Структура входных данных
 struct InputCalibrateData{
     struct FormatStr{
@@ -33,9 +32,5 @@ struct CalibrateSector{
 struct TCalibrateData{
 
 };
-namespace bvsk_cfg {
-
-}
-
 
 #endif // IO_STRUCTS_H

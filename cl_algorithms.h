@@ -4,7 +4,7 @@
 #include "io_structs.h"
 #include "angle.h"
 #include <iostream>
-using namespace bvsk_cfg;
+
 //DisplayCalibrateData - функтор вывода данных Calibrate Data на консоль
 class DisplayCalibrateData{
 public:
@@ -25,7 +25,10 @@ private:
     static double verticaltLenght; /* Высота сектора 5 град */
 public:
     CalculatorCalibrateData(InputCalibrateData *d);
+    static void setHorizontLength(double length);
+    static void setVerticalLength(double length);
     void process();
+    void clearResult();
     std::vector< std::vector<CalibrateSector> >* getResult();
 };
 #endif // CL_ALGORITHMS_H

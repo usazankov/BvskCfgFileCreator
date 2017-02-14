@@ -8,6 +8,16 @@ CalculatorCalibrateData::CalculatorCalibrateData(InputCalibrateData *d)
     this->d=d;
 }
 
+void CalculatorCalibrateData::setHorizontLength(double length)
+{
+    horizontLenght=length;
+}
+
+void CalculatorCalibrateData::setVerticalLength(double length)
+{
+    verticaltLenght=length;
+}
+
 void CalculatorCalibrateData::process()
 {
     using namespace std;
@@ -75,6 +85,11 @@ void CalculatorCalibrateData::process()
             cout<<AllSectors[i][j]<<endl;
         }
     }
+}
+
+void CalculatorCalibrateData::clearResult()
+{
+    AllSectors.clear();
 }
 
 std::vector<std::vector<CalibrateSector> > *CalculatorCalibrateData::getResult()
