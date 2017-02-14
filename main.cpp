@@ -4,12 +4,13 @@
 #include <QGuiApplication>
 #endif
 #include <QQmlApplicationEngine>
-#include <documenthandler.h>
 #include <QFontDatabase>
-#include "parser.h"
-#include "angle.h"
+#include "Models/parser.h"
+#include "Models/angle.h"
 #include <algorithm>
-#include <cl_algorithms.h>
+#include <Models/cl_algorithms.h>
+#include <GUI/documenthandler.h>
+
 int main(int argc, char *argv[])
 {
     QGuiApplication::setApplicationName("Text Editor");
@@ -22,11 +23,20 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 #endif
     QFontDatabase fontDatabase;
-    if (fontDatabase.addApplicationFont(":/fonts/fontello.ttf") == -1)
+    if (fontDatabase.addApplicationFont(":/GUI/fonts/fontello.ttf") == -1)
         qWarning() << "Failed to load fontello.ttf";
+    QStringList selectors;
+#ifdef QT_EXTRA_FILE_SELECTOR
+    selectors += QT_EXTRA_FILE_SELECTOR;
+#else
+    if (app.arguments().contains("-touch"))
+        selectors += "touch";
+#endif
+
     QQmlApplicationEngine engine;
-    qmlRegisterType<DocumentHandler>("io.qt.BvskCfgCreatorGUI", 1, 0, "DocumentHandler");
-    engine.load(QUrl(QLatin1String("qrc:/main.qml")));
+    QQmlFileSelector::get(&engine)->setExtraSelectors(selectors);
+    qmlRegisterType<DocumentHandler>("io.qt.BvskCfgFileCreatorGUI", 1, 0, "DocumentHandler");
+    engine.load(QUrl(QLatin1String("qrc:/GUI/main.qml")));
     
     return app.exec();
 }

@@ -27,14 +27,14 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 SOURCES += main.cpp \
-    parser.cpp \
-    angle.cpp \
-    cl_algorithms.cpp \
-    documenthandler.cpp
+    Models/parser.cpp \
+    Models/angle.cpp \
+    Models/cl_algorithms.cpp \
+    GUI/documenthandler.cpp
 
 HEADERS += \
-    parser.h \
-    angle.h \
-    cl_algorithms.h \
-    io_structs.h \
-    documenthandler.h
+    Models/parser.h \
+    Models/angle.h \
+    Models/cl_algorithms.h \
+    Models/io_structs.h \
+    GUI/documenthandler.h

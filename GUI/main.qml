@@ -3,7 +3,7 @@ import QtQuick.Controls 2.1
 import Qt.labs.platform 1.0
 import QtQuick.Layouts 1.0
 import QtQuick.Window 2.0
-import io.qt.BvskCfgCreatorGUI 1.0
+import io.qt.BvskCfgFileCreatorGUI 1.0
 import "./qml"
 ApplicationWindow {
     id:appWindow;
@@ -74,7 +74,7 @@ ApplicationWindow {
     }
     FileDialog {
         id: openDialog;
-        nameFilters: ["Text files (*.txt)", "HTML files (*.html *.htm)"]
+        nameFilters: ["Text files (*.txt)"]
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
         onAccepted: document.load(file)
     }

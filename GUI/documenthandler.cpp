@@ -81,8 +81,6 @@ void DocumentHandler::errorHighlighting()
         format.setForeground(QBrush(color_text));
         QTextCursor cursor(doc);
         QString text=doc->toPlainText();
-        qDebug()<<"line_count="<<doc->lineCount();
-
         QTextStream stream(&text);
         int countLine=0;
         int pos=0;
@@ -99,19 +97,6 @@ void DocumentHandler::errorHighlighting()
             }
             ++countLine;
         }
-        /*do{
-            pos=text.indexOf(Syntax::comment,pos);
-            if(pos!=-1){
-                cursor.setPosition(pos);
-                int end_pos=text.indexOf("\n",pos);
-                cursor.setPosition(end_pos, QTextCursor::KeepAnchor);
-                if (!cursor.hasSelection())
-                    cursor.select(QTextCursor::WordUnderCursor);
-                cursor.mergeCharFormat(format);
-                ++pos;
-            }
-
-        }while(pos!=-1);*/
     }
 }
 

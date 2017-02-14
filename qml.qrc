@@ -1,8 +1,8 @@
 <RCC>
     <qresource prefix="/">
         <file>qtquickcontrols2.conf</file>
-        <file>fonts/fontello.ttf</file>
-        <file>qml/SplitView.qml</file>
-        <file>main.qml</file>
+        <file>GUI/fonts/fontello.ttf</file>
+        <file>GUI/qml/SplitView.qml</file>
+        <file>GUI/main.qml</file>
     </qresource>
 </RCC>
