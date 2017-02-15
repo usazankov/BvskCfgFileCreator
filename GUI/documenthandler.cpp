@@ -75,7 +75,7 @@ void DocumentHandler::errorHighlighting()
 {
     if (QTextDocument *doc = textDocument()){
         QTextCharFormat format;
-        QColor color(255,0,0);
+        QColor color(207,81,81);
         QColor color_text(255,255,255);
         format.setBackground(QBrush(color));
         format.setForeground(QBrush(color_text));

@@ -16,9 +16,9 @@ void ParserTableOfDouble::initialize()
     regular.setPattern(bvsk_cfg::DEFAULT_REGULAR_DOUBLE);
 }
 
-ParserTableOfDouble::ParserTableOfDouble(const QStringList &files):Parser()
+ParserTableOfDouble::ParserTableOfDouble():Parser()
 {
-    pathToFiles=files;
+    this->txt="";
     initialize();
 }
 
@@ -29,13 +29,13 @@ std::vector<std::vector<double> > *ParserTableOfDouble::getData()
 
 void ParserTableOfDouble::read()
 {
-    foreach (QString path, pathToFiles) {
+    /*foreach (QString path, pathToFiles) {
         QFile file(QDir::currentPath()+path);
         if(!file.open(QIODevice::ReadOnly|QIODevice::Text)){
             qDebug()<<"Невозможно открыть файл: "<<path;
             break;
-        }
-        QTextStream stream(&file);
+        }*/
+        QTextStream stream(&txt);
         int row=0;
         int column=0;
         while(!stream.atEnd()){
@@ -54,7 +54,7 @@ void ParserTableOfDouble::read()
                 ++row;
             }
         }
-    }
+    //}
 }
 
 void ParserTableOfDouble::accept(Visitor *visitor)

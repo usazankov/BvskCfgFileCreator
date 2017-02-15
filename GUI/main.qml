@@ -1,19 +1,37 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
+import QtQuick.Controls.Styles 1.4
 import Qt.labs.platform 1.0
 import QtQuick.Layouts 1.0
 import QtQuick.Window 2.0
-import io.qt.BvskCfgFileCreatorGUI 1.0
+import QtQuick.Controls.Material 2.1
 import "./qml"
 ApplicationWindow {
     id:appWindow;
     visible: true
-    width: 640
-    height: 480
-    title: qsTr("BvskCfgCreator")
+    width: 800
+    height: 600
+    title: qsTr("BvskCfgFileCreator")
+    function normalMessage(txt){
+        return "<span>"+txt+"</span>";
+    }
+    function errorMessage(txt){
+        return "<span style='color:#CF5151'>"+txt+"</span>";
+    }
+    function goodMessage(txt){
+        return "<span style='color:#008000'>"+txt+"</span>";
+    }
     Component.onCompleted: {
         x = Screen.width / 2 - width / 2
         y = Screen.height / 2 - height / 2
+    }
+    Connections {
+        target: errHandle
+        onNewMessage: {
+            if(tabView.count>0)
+                if(tabView.getTab(tabView.currentIndex).item)
+                    tabView.getTab(tabView.currentIndex).item.getMessagePanel().append(txt);
+        }
     }
     Shortcut {
         sequence: StandardKey.Open
@@ -25,16 +43,17 @@ ApplicationWindow {
     }
     Shortcut {
         sequence: StandardKey.Copy
-        onActivated: textArea.copy()
+        onActivated: tabView.getTab(tabView.currentIndex).item.getTextArea().copy()
     }
     Shortcut {
         sequence: StandardKey.Cut
-        onActivated: textArea.cut()
+        onActivated: tabView.getTab(tabView.currentIndex).item.getTextArea().cut()
     }
     Shortcut {
         sequence: StandardKey.Paste
-        onActivated: textArea.paste()
+        onActivated: tabView.getTab(tabView.currentIndex).item.getTextArea().paste()
     }
+
     MenuBar {
         Menu {
             title: qsTr("&File")
@@ -57,18 +76,36 @@ ApplicationWindow {
 
             MenuItem {
                 text: qsTr("&Copy")
-                enabled: textArea.selectedText
-                onTriggered: textArea.copy()
+                enabled: {
+                    if(tabView.count>0)
+                        if(tabView.getTab(tabView.currentIndex).item)
+                            tabView.getTab(tabView.currentIndex).item.getTextArea().selectedText
+                        else return false;
+                    else return false;
+                }
+                onTriggered: tabView.getTab(tabView.currentIndex).item.getTextArea().copy()
             }
             MenuItem {
                 text: qsTr("Cu&t")
-                enabled: textArea.selectedText
-                onTriggered: textArea.cut()
+                enabled: {
+                    if(tabView.count>0)
+                        if(tabView.getTab(tabView.currentIndex).item)
+                            tabView.getTab(tabView.currentIndex).item.getTextArea().selectedText
+                        else return false;
+                    else return false;
+                }
+                onTriggered: tabView.getTab(tabView.currentIndex).item.getTextArea().cut()
             }
             MenuItem {
                 text: qsTr("&Paste")
-                enabled: textArea.canPaste
-                onTriggered: textArea.paste()
+                enabled: {
+                    if(tabView.count>0)
+                        if(tabView.getTab(tabView.currentIndex).item)
+                            tabView.getTab(tabView.currentIndex).item.getTextArea().canPaste
+                        else return false;
+                    else return false;
+                }
+                onTriggered: tabView.getTab(tabView.currentIndex).item.getTextArea().paste()
             }
         }
     }
@@ -76,14 +113,24 @@ ApplicationWindow {
         id: openDialog;
         nameFilters: ["Text files (*.txt)"]
         folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
-        onAccepted: document.load(file)
+        onAccepted: {
+            var component = Qt.createComponent("doc.qml");
+            if (component.status === Component.Ready){
+                var t=tabView.addTab("", component);
+                t.active=true;
+                t.item.resources[0].load(file)
+                t.title=t.item.resources[0].fileName
+                tabView.currentIndex=tabView.count-1;
+                errHandle.newMessage(normalMessage(t.item.resources[0].fileUrl.toString())+" <span style='color:#008000'>loaded</span>")
+            }
+
+        }
     }
     header: ToolBar {
         leftPadding: 8
         Flow {
             id: flow
             width: parent.width
-
             Row {
                 id: fileRow
                 ToolButton {
@@ -96,7 +143,6 @@ ApplicationWindow {
                     contentItem.visible: fileRow.y === editRow.y
                 }
             }
-
             Row {
                 id: editRow
                 ToolButton {
@@ -104,158 +150,127 @@ ApplicationWindow {
                     text: "\uF0C5" // icon-docs
                     font.family: "fontello"
                     focusPolicy: Qt.TabFocus
-                    enabled: textArea.selectedText
-                    onClicked: textArea.copy()
+                    enabled: {
+                        if(tabView.count>0)
+                            if(tabView.getTab(tabView.currentIndex).item)
+                                return tabView.getTab(tabView.currentIndex).item.getTextArea().selectedText;
+                            else return false;
+                        else return false;
+                    }
+                    onClicked: {
+                        if(tabView.count>0)
+                            tabView.getTab(tabView.currentIndex).item.getTextArea().copy()
+                    }
                 }
                 ToolButton {
                     id: cutButton
                     text: "\uE802" // icon-scissors
                     font.family: "fontello"
                     focusPolicy: Qt.TabFocus
-                    enabled: textArea.selectedText
-                    onClicked: textArea.cut()
+                    enabled: {
+                        if(tabView.count>0)
+                            if(tabView.getTab(tabView.currentIndex).item)
+                                 tabView.getTab(tabView.currentIndex).item.getTextArea().selectedText;
+                            else return false;
+                        else return false;
+                    }
+                    onClicked: {
+                        if(tabView.count>0)
+                            tabView.getTab(tabView.currentIndex).item.getTextArea().cut()
+                    }
                 }
                 ToolButton {
                     id: pasteButton
                     text: "\uF0EA" // icon-paste
                     font.family: "fontello"
                     focusPolicy: Qt.TabFocus
-                    enabled: textArea.canPaste
-                    onClicked: textArea.paste()
+                    enabled: {
+                        if(tabView.count>0)
+                            if(tabView.getTab(tabView.currentIndex).item)
+                                tabView.getTab(tabView.currentIndex).item.getTextArea().canPaste
+                            else return false;
+                        else return false;
+                    }
+                    onClicked: {
+                        if(tabView.count>0)
+                            tabView.getTab(tabView.currentIndex).item.getTextArea().paste()}
                 }
                 ToolSeparator {
                     //contentItem.visible: editRow.y === formatRow.y
                 }
             }
-        }
-    }
-    DocumentHandler {
-        id: document
-        document: textArea.textDocument
-        onLoaded: {
-            textArea.text = text
-        }
-        onError: {
-            errorDialog.text = message
-            errorDialog.visible = true
-        }
-    }
+            Row {
+                id:confRow;
 
-    SplitView{
-        anchors.fill: parent
-        orientation: Qt.Vertical
-        Flickable {
-            Layout.minimumHeight: 100;
-            Layout.fillHeight: true;
-            id: flickable
-            anchors.top:parent.top;
-            anchors.left: parent.left;
-            anchors.right: parent.right
-            height: commandPanel.y;
-            flickableDirection: Flickable.HorizontalAndVerticalFlick
-
-            Rectangle {
-                id:panelLine;
-                width: areaCountLine.width;
-                height: parent.height;
-                color: "#d1d1d1"
-                x:hBar.position*parent.width;
-
-                TextArea{
-                    id:areaCountLine;
-                    textFormat: textArea.textFormat;
-                    text:"1";
-                    persistentSelection: true;
-                    leftPadding: 20;
-                    rightPadding: 20;
-                    topPadding: 0
-                    //horizontalAlignment: TextEdit.AlignRight;
-
-                    wrapMode: textArea.wrapMode;
-                    enabled: false;
-                    background: null;
-                    bottomPadding: textArea.bottomPadding;
+                ComboBox {
+                    Material.elevation: 0
+                    font.family: "fontello"
+                    focusPolicy: Qt.TabFocus
+                    width: 200
+                    model: [ "Calibration", "Termocalibration"]
                 }
-            }
-            TextArea.flickable: TextArea {
-                id: textArea
-                x:panelLine.width;
-                textFormat: Qt.RichText
-                wrapMode: TextArea.NoWrap
+                Button{
+                    Material.elevation: 0
+                    height: 50;
+                    width:100;
+                    text:"Start";
+                    onClicked: {
 
-                focus: true
-                selectByMouse: true
-                persistentSelection: true
-                // Different styles have different padding and background
-                // decorations, but since this editor is almost taking up the
-                // entire window, we don't need them.
-                leftPadding: 10
-                rightPadding: 100
-                topPadding: 0
-                bottomPadding: 20
-                background: null
-                onLineCountChanged: {
-                    var text="";
-                    for(var i=0;i<textArea.lineCount;++i)
-                        text+=i+1+"<br>";
-                    areaCountLine.text=text;
-                }
-                MouseArea {
-                    acceptedButtons: Qt.RightButton
-                    anchors.fill: parent
-                    onClicked: contextMenu.open()
-                }
-
-                onLinkActivated: Qt.openUrlExternally(link)
-            }
-
-            ScrollBar.vertical: ScrollBar {
-                active: true;
-                onActiveChanged: {
-                    active=true;
-                }
-
-            }
-            ScrollBar.horizontal: ScrollBar{
-                id:hBar;
-                active: true;
-                onActiveChanged: {
-                    active=true;
+                    }
                 }
             }
         }
-        Rectangle{
-            id:commandPanel;
-        //height: 10;
-        //width: 100;
+    }
 
-        Layout.minimumHeight: 100;
-        Layout.maximumHeight: 500;
-        anchors.bottom: parent.bottom
+    TabView {
+        id:tabView;
+        anchors.fill: parent;
+
+        style: TabViewStyle {
+            property color frameColor: "#999"
+            property color fillColor: "white"
+            property color notSelectedColor: "#eee"
+            tabsMovable: true;
+            frame: Rectangle {
+                color: "white"
+                border.color: tabView.count>0 ? frameColor : fillColor;
+            }
+            tab: Rectangle {
+                color: styleData.selected ? fillColor : notSelectedColor
+                implicitWidth: Math.max(text.width + 30, 80)
+                implicitHeight: 40
+                border.color: styleData.selected ? fillColor : frameColor
+                Rectangle { height: 1 ; width: parent.width ; color: frameColor}
+                Rectangle { height: parent.height ; width: 1; color: frameColor}
+                Rectangle { x: parent.width -1; height: parent.height ; width: 1; color: frameColor}
+                Text {
+                    id: text
+                    anchors.left: parent.left
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.leftMargin: 6
+                    anchors.rightMargin: 10;
+                    text: styleData.title
+                    color: "black"
+                }
+                Button {
+                    anchors.right: parent.right
+                    anchors.topMargin: 10;
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.rightMargin:4;
+                    height: 16;
+                    background: Rectangle {
+                        implicitWidth: 16
+                        implicitHeight: 16
+                        radius: width/2
+                        color: control.hovered ? "#eee": "#ccc"
+                        border.color: "gray"
+                        Text {text: "X" ; anchors.centerIn: parent ; color: "gray"}
+                    }
+                    onClicked: tabView.removeTab(styleData.index)
+                }
+            }
         }
     }
-    Menu {
-        id: contextMenu
 
-        MenuItem {
-            text: qsTr("Copy")
-            enabled: textArea.selectedText
-            onTriggered: textArea.copy()
-        }
-        MenuItem {
-            text: qsTr("Cut")
-            enabled: textArea.selectedText
-            onTriggered: textArea.cut()
-        }
-        MenuItem {
-            text: qsTr("Paste")
-            enabled: textArea.canPaste
-            onTriggered: textArea.paste()
-        }
-        MenuItem {
-            text: qsTr("Count")
-            enabled: true;
-            onTriggered: console.log(textArea.lineCount);
-        }
-    }
+
 }

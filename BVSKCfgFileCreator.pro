@@ -30,11 +30,15 @@ SOURCES += main.cpp \
     Models/parser.cpp \
     Models/angle.cpp \
     Models/cl_algorithms.cpp \
-    GUI/documenthandler.cpp
+    GUI/documenthandler.cpp \
+    GUI/errorshandle.cpp \
+    maincontroller.cpp
 
 HEADERS += \
     Models/parser.h \
     Models/angle.h \
     Models/cl_algorithms.h \
     Models/io_structs.h \
-    GUI/documenthandler.h
+    GUI/documenthandler.h \
+    GUI/errorshandle.h \
+    maincontroller.h

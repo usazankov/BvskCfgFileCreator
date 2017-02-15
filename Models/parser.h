@@ -23,14 +23,14 @@ public:
 //Выходными данными парсера является Вектор векторов (std::vector< std::vector<double> >)
 class ParserTableOfDouble: public Parser{
 private:
-    QStringList pathToFiles;
+    QString txt;
     std::vector< std::vector<double> > data;
     QRegExp regular;
     QString comment;
-    unsigned int countFiles;
     void initialize();
 public:
-    ParserTableOfDouble(const QStringList &files);
+    ParserTableOfDouble(const QString &txt);
+    ParserTableOfDouble();
     std::vector< std::vector<double> >* getData();
     // Reader interface
 public:

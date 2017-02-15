@@ -4,5 +4,8 @@
         <file>GUI/fonts/fontello.ttf</file>
         <file>GUI/qml/SplitView.qml</file>
         <file>GUI/main.qml</file>
+        <file>GUI/qml/Tab.qml</file>
+        <file>GUI/qml/TabView.qml</file>
+        <file>GUI/doc.qml</file>
     </qresource>
 </RCC>
