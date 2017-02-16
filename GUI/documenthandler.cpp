@@ -102,6 +102,7 @@ void DocumentHandler::errorHighlighting()
 
 void DocumentHandler::load(const QUrl &fileUrl)
 {
+    qDebug()<<"Loaded file...";
     if (fileUrl == m_fileUrl)
         return;
     QQmlEngine *engine = qmlEngine(this);
@@ -119,8 +120,9 @@ void DocumentHandler::load(const QUrl &fileUrl)
             stream.setFieldAlignment(QTextStream::AlignLeft);
             QString txt;
             while(!stream.atEnd()){
-                txt+=stream.readLine()+"\n<br>";
+                txt+=stream.readLine()+"\n";
             }
+
             if (QTextDocument *doc = textDocument())
                 doc->setModified(false);
 

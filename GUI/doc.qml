@@ -10,7 +10,8 @@ Item{
     id:mainItem;
     objectName: "aaa";
     property bool isBuild: false;
-
+    property string fontTextArea: "fontello";
+    property int fontSize: 14;
     function getTextArea(){
         return textArea;
     }
@@ -45,7 +46,7 @@ Item{
             anchors.left: parent.left;
             anchors.right: parent.right
             height: commandPanel.y;
-            anchors.topMargin: 10;
+            //anchors.topMargin: 10;
             flickableDirection: Flickable.HorizontalAndVerticalFlick
             Rectangle {
                 id:panelLine;
@@ -55,7 +56,7 @@ Item{
                 x:hBar.position*parent.width;
                 TextArea{
                     id:areaCountLine;
-                    textFormat: Qt.RichText
+                    //textFormat: Qt.RichText
                     text:"1";
                     persistentSelection: true
                     selectByMouse: true
@@ -63,6 +64,8 @@ Item{
                     rightPadding: 20;
                     topPadding: 0
                     wrapMode: textArea.wrapMode;
+                    font.family: fontTextArea;
+                    font.pixelSize: fontSize
                     readOnly: true;
                     background: null;
                     bottomPadding: textArea.bottomPadding;
@@ -72,7 +75,7 @@ Item{
                 id: textArea
                 x:panelLine.width;
 
-                textFormat: Qt.RichText
+                //textFormat: Qt.RichText
                 wrapMode: TextArea.NoWrap
                 focus: true
                 selectByMouse: true
@@ -81,15 +84,16 @@ Item{
                 // decorations, but since this editor is almost taking up the
                 // entire window, we don't need them.
                 leftPadding: 10
-                rightPadding: 100
+                //rightPadding: 100
                 topPadding: 0
                 bottomPadding: 20
                 background: null
-
+                font.family: fontTextArea;
+                font.pixelSize: fontSize;
                 onLineCountChanged: {
                     var text="";
                     for(var i=0;i<textArea.lineCount;++i)
-                        text+=i+1+"<br>";
+                        text+=i+1+"\n";
                     areaCountLine.text=text;
                 }
                 MouseArea {
@@ -136,10 +140,11 @@ Item{
                     textFormat: Qt.RichText
                     wrapMode: TextArea.WordWrap
                     focus: true;
-                    font.pixelSize: 14;
+                    font.pixelSize: fontSize;
                     selectByMouse: true
                     persistentSelection: true
                     readOnly: true;
+                    font.family: fontTextArea;
                     //enabled: false;
                 }
                 ScrollBar.vertical: ScrollBar {

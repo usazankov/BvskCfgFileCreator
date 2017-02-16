@@ -1,9 +1,8 @@
-import QtQuick 2.7
+import QtQuick 2.8
 import QtQuick.Controls 2.1
 import QtQuick.Controls.Styles 1.4
+import QtQuick.Window 2.1
 import Qt.labs.platform 1.0
-import QtQuick.Layouts 1.0
-import QtQuick.Window 2.0
 import QtQuick.Controls.Material 2.1
 import "./qml"
 ApplicationWindow {
@@ -11,6 +10,7 @@ ApplicationWindow {
     visible: true
     width: 800
     height: 600
+    property string globalFont: "fontello";
     title: qsTr("BvskCfgFileCreator")
     function normalMessage(txt){
         return "<span>"+txt+"</span>";
@@ -136,7 +136,7 @@ ApplicationWindow {
                 ToolButton {
                     id: openButton
                     text: "\uF115" // icon-folder-open-empty
-                    font.family: "fontello"
+                    font.family: globalFont
                     onClicked: openDialog.open()
                 }
                 ToolSeparator {
@@ -148,7 +148,7 @@ ApplicationWindow {
                 ToolButton {
                     id: copyButton
                     text: "\uF0C5" // icon-docs
-                    font.family: "fontello"
+                    font.family: globalFont
                     focusPolicy: Qt.TabFocus
                     enabled: {
                         if(tabView.count>0)
@@ -165,7 +165,7 @@ ApplicationWindow {
                 ToolButton {
                     id: cutButton
                     text: "\uE802" // icon-scissors
-                    font.family: "fontello"
+                    font.family: globalFont
                     focusPolicy: Qt.TabFocus
                     enabled: {
                         if(tabView.count>0)
@@ -182,7 +182,7 @@ ApplicationWindow {
                 ToolButton {
                     id: pasteButton
                     text: "\uF0EA" // icon-paste
-                    font.family: "fontello"
+                    font.family: globalFont
                     focusPolicy: Qt.TabFocus
                     enabled: {
                         if(tabView.count>0)
@@ -201,12 +201,12 @@ ApplicationWindow {
             }
             Row {
                 id:confRow;
-
                 ComboBox {
                     Material.elevation: 0
-                    font.family: "fontello"
+                    font.family: globalFont;
+                    font.pixelSize: 14;
                     focusPolicy: Qt.TabFocus
-                    width: 200
+                    width: 150;
                     model: [ "Calibration", "Termocalibration"]
                 }
                 Button{
@@ -214,6 +214,9 @@ ApplicationWindow {
                     height: 50;
                     width:100;
                     text:"Start";
+                    font.family: globalFont;
+                    font.pixelSize: 14;
+                    font.capitalization: Font.MixedCase
                     onClicked: {
 
                     }
@@ -225,24 +228,25 @@ ApplicationWindow {
     TabView {
         id:tabView;
         anchors.fill: parent;
-
+        anchors.topMargin: 4;
         style: TabViewStyle {
             property color frameColor: "#999"
             property color fillColor: "white"
             property color notSelectedColor: "#eee"
+            frameOverlap: 1
             tabsMovable: true;
             frame: Rectangle {
                 color: "white"
                 border.color: tabView.count>0 ? frameColor : fillColor;
+
             }
             tab: Rectangle {
                 color: styleData.selected ? fillColor : notSelectedColor
                 implicitWidth: Math.max(text.width + 30, 80)
                 implicitHeight: 40
-                border.color: styleData.selected ? fillColor : frameColor
-                Rectangle { height: 1 ; width: parent.width ; color: frameColor}
-                Rectangle { height: parent.height ; width: 1; color: frameColor}
-                Rectangle { x: parent.width -1; height: parent.height ; width: 1; color: frameColor}
+                anchors.top: frame.bottom;
+                border.color: frameColor;
+                Rectangle{y:parent.height-1; width: parent.width-1; height: 1; x:parent.x+1; color: styleData.selected ? fillColor: frameColor;}
                 Text {
                     id: text
                     anchors.left: parent.left
@@ -250,7 +254,9 @@ ApplicationWindow {
                     anchors.leftMargin: 6
                     anchors.rightMargin: 10;
                     text: styleData.title
-                    color: "black"
+                    color: Material.foreground;
+                    font.family: globalFont;
+                    font.pixelSize: 14;
                 }
                 Button {
                     anchors.right: parent.right
