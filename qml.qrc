@@ -2,10 +2,9 @@
     <qresource prefix="/">
         <file>qtquickcontrols2.conf</file>
         <file>GUI/fonts/fontello.ttf</file>
-        <file>GUI/qml/SplitView.qml</file>
         <file>GUI/main.qml</file>
-        <file>GUI/qml/Tab.qml</file>
-        <file>GUI/qml/TabView.qml</file>
         <file>GUI/doc.qml</file>
+        <file>GUI/qml/TabView.qml</file>
+        <file>GUI/qml/SplitView.qml</file>
     </qresource>
 </RCC>

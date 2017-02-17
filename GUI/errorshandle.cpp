@@ -6,6 +6,7 @@ ErrorsHandle::ErrorsHandle(QObject *parent) : QObject(parent)
 
 }
 
+
 ErrorsHandle *ErrorsHandle::getInstance()
 {
     if(p_instance==Q_NULLPTR){
@@ -22,14 +23,15 @@ void ErrorsHandle::sendMessage(QString msg, ErrorsHandle::TypeMessage type)
         emit ErrorsHandle::getInstance()->newMessage("<span>"+msg+"</span>");
         break;
     case Error:
-        emit ErrorsHandle::getInstance()->newMessage("<span style='color:red'>"+msg+"</span>");
+        emit ErrorsHandle::getInstance()->newMessage("<span style='color:#CF5151'>"+msg+"</span>");
         break;
     case Good:
-        emit ErrorsHandle::getInstance()->newMessage("<span style='color:green'>"+msg+"</span>");
+        emit ErrorsHandle::getInstance()->newMessage("<span style='color:#008000'>"+msg+"</span>");
         break;
     default:
         emit ErrorsHandle::getInstance()->newMessage("<span>"+msg+"</span>");
         break;
     }
-
+    msg.replace("<br>","\n");
+    std::cout<<msg.toStdString()<<std::endl;
 }

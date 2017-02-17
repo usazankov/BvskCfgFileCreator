@@ -2,11 +2,11 @@
 #define ERRORSHANDLE_H
 
 #include <QObject>
-#include <istream>
 #include <QQuickTextDocument>
 #include <QTextDocument>
 #include <QTextBlock>
 #include <QStringList>
+#include <iostream>
 class ErrorsHandle : public QObject
 {
     Q_OBJECT
@@ -15,6 +15,7 @@ private:
     explicit ErrorsHandle(const ErrorsHandle& err);
     ErrorsHandle& operator=(const ErrorsHandle& err);
     static ErrorsHandle *p_instance;
+    int t;
 public:
     static ErrorsHandle* getInstance();
     enum TypeMessage{Normal, Error, Good};

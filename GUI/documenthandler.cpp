@@ -2,7 +2,7 @@
 
 DocumentHandler::DocumentHandler(QObject *parent) : QObject(parent),m_document(Q_NULLPTR)
 {
-    errorsLine[12-1]="ff";
+
 }
 
 QQuickTextDocument *DocumentHandler::document() const
@@ -14,7 +14,6 @@ void DocumentHandler::setDocument(QQuickTextDocument *document)
 {
     if (document == m_document)
         return;
-
     m_document = document;
     emit documentChanged();
 }
@@ -33,9 +32,28 @@ QString DocumentHandler::fileType() const
     return QFileInfo(fileName()).suffix();
 }
 
+void DocumentHandler::setTextColor(const QString &txt)
+{
+    QColor c(txt);
+    defaultTextColor=c;
+    emit textColorChanged();
+}
+
+void DocumentHandler::setBackgroundColor(const QString &color)
+{
+    QColor c(color);
+    defaultBackgroundColor=c;
+    emit backgroundColorChanged();
+}
+
 QUrl DocumentHandler::fileUrl() const
 {
     return m_fileUrl;
+}
+
+void DocumentHandler::addErrorInfo(int numberStr, const QString &txt)
+{
+    errorsLine[numberStr-1]=txt;
 }
 
 QTextDocument *DocumentHandler::textDocument() const
@@ -43,6 +61,19 @@ QTextDocument *DocumentHandler::textDocument() const
     if (!m_document)
         return nullptr;
     return m_document->textDocument();
+}
+
+void DocumentHandler::toDefaultHighlighting()
+{
+    if (QTextDocument *doc = textDocument()){
+        QTextCharFormat format;
+        format.setForeground(QBrush(defaultTextColor));
+        format.setBackground(QBrush(defaultBackgroundColor));
+        QTextCursor cursor(doc);
+        cursor.select(QTextCursor::Document);
+        cursor.mergeCharFormat(format);
+        syntaxHighlighting();
+    }
 }
 
 void DocumentHandler::syntaxHighlighting()
@@ -74,6 +105,7 @@ void DocumentHandler::syntaxHighlighting()
 void DocumentHandler::errorHighlighting()
 {
     if (QTextDocument *doc = textDocument()){
+        toDefaultHighlighting();
         QTextCharFormat format;
         QColor color(207,81,81);
         QColor color_text(255,255,255);
@@ -100,9 +132,13 @@ void DocumentHandler::errorHighlighting()
     }
 }
 
+void DocumentHandler::clearErrorsInfo()
+{
+    errorsLine.clear();
+}
+
 void DocumentHandler::load(const QUrl &fileUrl)
 {
-    qDebug()<<"Loaded file...";
     if (fileUrl == m_fileUrl)
         return;
     QQmlEngine *engine = qmlEngine(this);

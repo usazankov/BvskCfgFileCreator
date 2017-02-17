@@ -6,12 +6,10 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QFontDatabase>
-#include "GUI/documenthandler.h"
-#include "GUI/errorshandle.h"
 #include "maincontroller.h"
+
 int main(int argc, char *argv[])
 {
-    //GUI
     QGuiApplication::setApplicationName("BvskCfgFileCreator");
     QGuiApplication::setOrganizationName("MIEA");
     QGuiApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
@@ -27,10 +25,9 @@ int main(int argc, char *argv[])
         qWarning() << "Failed to load fontello.ttf";
     qmlRegisterType<DocumentHandler>("io.qt.BvskCfgFileCreatorGUI", 1, 0, "DocumentHandler");
     QQmlContext *pcon=engine.rootContext();
-
+    pcon->setContextProperty("controller", MainController::getInstance());
     pcon->setContextProperty("errHandle", ErrorsHandle::getInstance());
     engine.load(QUrl(QLatin1String("qrc:/GUI/main.qml")));
-    //Models
-    pcon->setContextProperty("controller", MainController::getInstance());
+    std::cout<<"Примеры файлов";
     return app.exec();
 }

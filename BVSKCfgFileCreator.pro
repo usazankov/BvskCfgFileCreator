@@ -32,7 +32,8 @@ SOURCES += main.cpp \
     Models/cl_algorithms.cpp \
     GUI/documenthandler.cpp \
     GUI/errorshandle.cpp \
-    maincontroller.cpp
+    maincontroller.cpp \
+    Models/checkercfg.cpp
 
 HEADERS += \
     Models/parser.h \
@@ -41,4 +42,5 @@ HEADERS += \
     Models/io_structs.h \
     GUI/documenthandler.h \
     GUI/errorshandle.h \
-    maincontroller.h
+    maincontroller.h \
+    Models/checkercfg.h

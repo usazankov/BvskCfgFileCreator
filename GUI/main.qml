@@ -4,6 +4,7 @@ import QtQuick.Controls.Styles 1.4
 import QtQuick.Window 2.1
 import Qt.labs.platform 1.0
 import QtQuick.Controls.Material 2.1
+import io.qt.BvskCfgFileCreatorGUI 1.0
 import "./qml"
 ApplicationWindow {
     id:appWindow;
@@ -11,6 +12,7 @@ ApplicationWindow {
     width: 800
     height: 600
     property string globalFont: "fontello";
+
     title: qsTr("BvskCfgFileCreator")
     function normalMessage(txt){
         return "<span>"+txt+"</span>";
@@ -25,14 +27,17 @@ ApplicationWindow {
         x = Screen.width / 2 - width / 2
         y = Screen.height / 2 - height / 2
     }
+
     Connections {
         target: errHandle
         onNewMessage: {
             if(tabView.count>0)
                 if(tabView.getTab(tabView.currentIndex).item)
                     tabView.getTab(tabView.currentIndex).item.getMessagePanel().append(txt);
+
         }
     }
+
     Shortcut {
         sequence: StandardKey.Open
         onActivated: openDialog.open()
@@ -118,12 +123,11 @@ ApplicationWindow {
             if (component.status === Component.Ready){
                 var t=tabView.addTab("", component);
                 t.active=true;
-                t.item.resources[0].load(file)
-                t.title=t.item.resources[0].fileName
+                t.item.resources[0].load(file);
+                t.title=t.item.resources[0].fileName;
                 tabView.currentIndex=tabView.count-1;
-                errHandle.newMessage(normalMessage(t.item.resources[0].fileUrl.toString())+" <span style='color:#008000'>loaded</span>")
+                errHandle.newMessage(normalMessage(t.item.resources[0].fileUrl.toString())+" loaded");
             }
-
         }
     }
     header: ToolBar {
@@ -201,12 +205,14 @@ ApplicationWindow {
             }
             Row {
                 id:confRow;
+                spacing: 10;
                 ComboBox {
+                    id:comboBoxType;
                     Material.elevation: 0
                     font.family: globalFont;
                     font.pixelSize: 14;
                     focusPolicy: Qt.TabFocus
-                    width: 150;
+                    width:200;
                     model: [ "Calibration", "Termocalibration"]
                 }
                 Button{
@@ -218,7 +224,10 @@ ApplicationWindow {
                     font.pixelSize: 14;
                     font.capitalization: Font.MixedCase
                     onClicked: {
-
+                        controller.docHandler=tabView.getTab(tabView.currentIndex).item.resources[0];
+                        controller.typeProcess=0;
+                        controller.process();
+                        tabView.getTab(tabView.currentIndex).item.resources[0].errorHighlighting();
                     }
                 }
             }
@@ -238,7 +247,6 @@ ApplicationWindow {
             frame: Rectangle {
                 color: "white"
                 border.color: tabView.count>0 ? frameColor : fillColor;
-
             }
             tab: Rectangle {
                 color: styleData.selected ? fillColor : notSelectedColor

@@ -3,6 +3,7 @@ import QtQuick.Controls 2.1
 import Qt.labs.platform 1.0
 import QtQuick.Layouts 1.0
 import QtQuick.Controls.Styles 1.4
+import QtQuick.Controls.Material 2.1
 import io.qt.BvskCfgFileCreatorGUI 1.0
 import "./qml"
 
@@ -22,8 +23,9 @@ Item{
     DocumentHandler {
         id:document;
         objectName: "doc";
-
         document: textArea.textDocument
+        textColor: Material.foreground;
+        backgroundColor: "#ffffff";
         onLoaded: {
             textArea.text = text
         }
@@ -132,7 +134,7 @@ Item{
                 id: flickable_messages;
                 anchors.fill:parent;
                 flickableDirection: Flickable.HorizontalAndVerticalFlick
-                TextArea.flickable:TextArea{
+                TextArea.flickable: TextArea{
                     id:messagePanel;
                     leftPadding: 10
                     rightPadding: 10
