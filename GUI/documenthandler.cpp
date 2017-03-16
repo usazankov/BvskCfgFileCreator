@@ -20,7 +20,7 @@ void DocumentHandler::setDocument(QQuickTextDocument *document)
 
 QString DocumentHandler::fileName() const
 {
-    const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl);
+    const QString filePath = QQmlFile::urlToLocalFileOrQrc(m_fileUrl[0]);
     const QString fileName = QFileInfo(filePath).fileName();
     if (fileName.isEmpty())
         return QStringLiteral("untitled.txt");
@@ -46,7 +46,7 @@ void DocumentHandler::setBackgroundColor(const QString &color)
     emit backgroundColorChanged();
 }
 
-QUrl DocumentHandler::fileUrl() const
+QList<QUrl> DocumentHandler::fileUrl() const
 {
     return m_fileUrl;
 }
@@ -137,37 +137,37 @@ void DocumentHandler::clearErrorsInfo()
     errorsLine.clear();
 }
 
-void DocumentHandler::load(const QUrl &fileUrl)
+void DocumentHandler::load(const QList<QUrl> &fileUrls)
 {
-    if (fileUrl == m_fileUrl)
+    if (fileUrls == m_fileUrl)
         return;
     QQmlEngine *engine = qmlEngine(this);
     if (!engine) {
         qWarning() << "load() called before DocumentHandler has QQmlEngine";
         return;
     }
-
-    const QUrl path = QQmlFileSelector::get(engine)->selector()->select(fileUrl);
-    const QString fileName = QQmlFile::urlToLocalFileOrQrc(path);
-    if (QFile::exists(fileName)) {
-        QFile file(fileName);
-        if (file.open(QFile::ReadOnly)) {
-            QTextStream stream(&file);
-            stream.setFieldAlignment(QTextStream::AlignLeft);
-            QString txt;
-            while(!stream.atEnd()){
-                txt+=stream.readLine()+"\n";
+    QTextStream stream;
+    QString txt;
+    for(int i=0;i<fileUrls.size();++i){
+        QUrl path = QQmlFileSelector::get(engine)->selector()->select(fileUrls[i]);
+        const QString fileName = QQmlFile::urlToLocalFileOrQrc(path);
+        if (QFile::exists(fileName)) {
+            QFile file(fileName);
+            if (file.open(QFile::ReadOnly)) {
+                stream.setDevice(&file);
+                stream.setFieldAlignment(QTextStream::AlignLeft);
+                while(!stream.atEnd()){
+                    txt+=stream.readLine()+"\n";
+                }
+                if (QTextDocument *doc = textDocument())
+                    doc->setModified(false);
+                ErrorsHandle::sendMessage(fileName+" loaded");
             }
-
-            if (QTextDocument *doc = textDocument())
-                doc->setModified(false);
-
-            emit loaded(txt);
-            syntaxHighlighting();
-            errorHighlighting();
         }
     }
-
-    m_fileUrl = fileUrl;
+    emit loaded(txt);
+    syntaxHighlighting();
+    errorHighlighting();
+    m_fileUrl = fileUrls;
     emit fileUrlChanged();
 }

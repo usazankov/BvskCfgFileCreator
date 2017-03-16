@@ -5,6 +5,7 @@ import QtQuick.Window 2.1
 import Qt.labs.platform 1.0
 import QtQuick.Controls.Material 2.1
 import io.qt.BvskCfgFileCreatorGUI 1.0
+import QtQuick.Layouts 1.0
 import "./qml"
 ApplicationWindow {
     id:appWindow;
@@ -22,6 +23,26 @@ ApplicationWindow {
     }
     function goodMessage(txt){
         return "<span style='color:#008000'>"+txt+"</span>";
+    }
+    function createDoc(fileUrls){
+        var component = Qt.createComponent("doc.qml");
+        if (component.status === Component.Ready){
+            var t=tabView.addTab("", component);
+            t.active=true;
+            t.item.resources[0].load(fileUrls);
+            t.title=t.item.resources[0].fileName;
+            tabView.currentIndex=tabView.count-1;
+        }
+    }
+    function createDocFromTxt(txt){
+        var component = Qt.createComponent("doc.qml");
+        if (component.status === Component.Ready){
+            var t=tabView.addTab("", component);
+            t.active=true;
+            t.item.resources[0].loaded(txt);
+            t.title="Bvsk.cfg";
+            tabView.currentIndex=tabView.count-1;
+        }
     }
     Component.onCompleted: {
         x = Screen.width / 2 - width / 2
@@ -59,7 +80,7 @@ ApplicationWindow {
         onActivated: tabView.getTab(tabView.currentIndex).item.getTextArea().paste()
     }
 
-    MenuBar {
+    /*MenuBar {
         Menu {
             title: qsTr("&File")
             MenuItem {
@@ -113,22 +134,22 @@ ApplicationWindow {
                 onTriggered: tabView.getTab(tabView.currentIndex).item.getTextArea().paste()
             }
         }
-    }
+    }*/
     FileDialog {
         id: openDialog;
-        nameFilters: ["Text files (*.txt)"]
-        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        fileMode: FileDialog.OpenFiles
+        nameFilters: ["Text files (*.txt)"];
         onAccepted: {
-            var component = Qt.createComponent("doc.qml");
-            if (component.status === Component.Ready){
-                var t=tabView.addTab("", component);
-                t.active=true;
-                t.item.resources[0].load(file);
-                t.title=t.item.resources[0].fileName;
-                tabView.currentIndex=tabView.count-1;
-                errHandle.newMessage(normalMessage(t.item.resources[0].fileUrl.toString())+" loaded");
-            }
+            createDoc(currentFiles);
         }
+    }
+    FileDialog {
+        id: saveDialog
+        fileMode: FileDialog.SaveFile
+        defaultSuffix: document.fileType
+        nameFilters: ["Cfg files (*.cfg)"];
+        folder: StandardPaths.writableLocation(StandardPaths.DocumentsLocation)
+        onAccepted: controller.saveResultToFile(file)
     }
     header: ToolBar {
         leftPadding: 8
@@ -139,7 +160,8 @@ ApplicationWindow {
                 id: fileRow
                 ToolButton {
                     id: openButton
-                    text: "\uF115" // icon-folder-open-empty
+                    //text: "\uF115" // icon-folder-open-empty
+                    text: "\uF115"
                     font.family: globalFont
                     onClicked: openDialog.open()
                 }
@@ -225,14 +247,36 @@ ApplicationWindow {
                     font.capitalization: Font.MixedCase
                     onClicked: {
                         controller.docHandler=tabView.getTab(tabView.currentIndex).item.resources[0];
-                        controller.typeProcess=0;
-                        controller.process();
-                        tabView.getTab(tabView.currentIndex).item.resources[0].errorHighlighting();
+                        controller.typeProcess=comboBoxType.currentIndex;
+                        if(controller.typeProcess==0){
+                            if(controller.process()){
+                                createDocFromTxt(controller.result);
+                            }
+                        }
+
+                    }
+                }
+                Button{
+                    id:saveButton;
+                    Material.elevation: 0
+                    height: 50;
+                    width:100;
+                    enabled: false;
+                    text:"Save";
+                    font.family: globalFont;
+                    font.pixelSize: 14;
+                    font.capitalization: Font.MixedCase
+                    onClicked: {
+                        controller.docHandler=tabView.getTab(tabView.currentIndex).item.resources[0];
+                        saveDialog.open();
                     }
                 }
             }
         }
     }
+
+
+
 
     TabView {
         id:tabView;
@@ -284,7 +328,12 @@ ApplicationWindow {
                 }
             }
         }
+        onCurrentIndexChanged: {
+            var num=tabView.getTab(tabView.currentIndex).title.indexOf(".cfg");
+            if(num!==-1)
+                saveButton.enabled=true;
+            else
+                saveButton.enabled=false;
+        }
     }
-
-
 }

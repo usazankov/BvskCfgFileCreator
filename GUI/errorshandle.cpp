@@ -20,16 +20,16 @@ void ErrorsHandle::sendMessage(QString msg, ErrorsHandle::TypeMessage type)
 {
     switch (type) {
     case Normal:
-        emit ErrorsHandle::getInstance()->newMessage("<span>"+msg+"</span>");
+        emit ErrorsHandle::getInstance()->newMessage("<span>"+msg.replace("\n","<br>")+"</span>");
         break;
     case Error:
-        emit ErrorsHandle::getInstance()->newMessage("<span style='color:#CF5151'>"+msg+"</span>");
+        emit ErrorsHandle::getInstance()->newMessage("<span style='color:#CF5151'>"+msg.replace("\n","<br>")+"</span>");
         break;
     case Good:
-        emit ErrorsHandle::getInstance()->newMessage("<span style='color:#008000'>"+msg+"</span>");
+        emit ErrorsHandle::getInstance()->newMessage("<span style='color:#008000'>"+msg.replace("\n","<br>")+"</span>");
         break;
     default:
-        emit ErrorsHandle::getInstance()->newMessage("<span>"+msg+"</span>");
+        emit ErrorsHandle::getInstance()->newMessage("<span>"+msg.replace("\n","<br>")+"</span>");
         break;
     }
     msg.replace("<br>","\n");

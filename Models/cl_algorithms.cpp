@@ -92,7 +92,31 @@ void CalculatorCalibrateData::clearResult()
     AllSectors.clear();
 }
 
-std::vector<std::vector<CalibrateSector> > *CalculatorCalibrateData::getResult()
+QString CalculatorCalibrateData::result()
+{
+    QString txt;
+    char f='f';//Format Output
+    for(unsigned int i=0; i<AllSectors.size();++i){
+        txt+="^"+QString::number(d->data[i][0].Bcu.toDegrees())+"\n";
+        for(unsigned int j=0;j<AllSectors[i].size();++j){
+            CalibrateSector sector=AllSectors[i][j];
+            txt+=QString::number(sector.eps.vertex.toDegrees(),f,bvsk_cfg::precision)
+                    +" "+QString::number(sector.eps.hor_coef,f,bvsk_cfg::precision)+
+                    " "+QString::number(sector.eps.ver_coef,f,bvsk_cfg::precision)+" "+
+                    QString::number(sector.delta.vertex.toDegrees(),f,bvsk_cfg::precision)+
+                    " "+QString::number(sector.delta.hor_coef,f,bvsk_cfg::precision)+
+                    " "+QString::number(sector.delta.ver_coef,f,bvsk_cfg::precision)+"\n";
+        }
+    }
+    return txt;
+}
+
+void CalculatorCalibrateData::saveToFile(const QUrl &path) const
+{
+
+}
+
+std::vector<std::vector<CalibrateSector> > *CalculatorCalibrateData::getResultStruct()
 {
     return &AllSectors;
 }

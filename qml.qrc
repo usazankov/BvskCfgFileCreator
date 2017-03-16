@@ -6,5 +6,6 @@
         <file>GUI/doc.qml</file>
         <file>GUI/qml/TabView.qml</file>
         <file>GUI/qml/SplitView.qml</file>
+        <file>GUI/qml/Tab.qml</file>
     </qresource>
 </RCC>

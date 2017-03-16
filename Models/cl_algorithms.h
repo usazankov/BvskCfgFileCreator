@@ -7,6 +7,9 @@
 #include <ostream>
 
 //CalculateCalibrateData - класс вычисления калибровочных коэффициентов
+namespace bvsk_cfg {
+    const int precision=6;//precision of output calibrate coef
+}
 class CalculatorCalibrateData{
 private:
     InputCalibrateData *d;
@@ -19,6 +22,9 @@ public:
     static void setVerticalLength(double length);
     void process();
     void clearResult();
-    std::vector< std::vector<CalibrateSector> >* getResult();
+    QString result();
+    void saveToFile(const QUrl &path)const;
+    std::vector< std::vector<CalibrateSector> >* getResultStruct();
 };
+
 #endif // CL_ALGORITHMS_H

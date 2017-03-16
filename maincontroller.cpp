@@ -19,6 +19,7 @@ bool MainController::parsingCalibrateOrTermoCalibrate()
         }catch(ParserTableOfDouble::ParsingEx ex){
             ErrorsHandle::sendMessage("Error on "+QString::number(ex.numberStrEx)+": "+ex.infoEx, ErrorsHandle::Error);
             doc->addErrorInfo(ex.numberStrEx, ex.infoEx);
+            doc->errorHighlighting();
             return 0;
         }
         CheckerInputData checker;
@@ -27,6 +28,7 @@ bool MainController::parsingCalibrateOrTermoCalibrate()
         }catch(CheckerInputData::CheckingEx ex){
             ErrorsHandle::sendMessage("Error on "+QString::number(ex.numberStrEx)+": "+ex.infoEx, ErrorsHandle::Error);
             doc->addErrorInfo(ex.numberStrEx, ex.infoEx);
+            doc->errorHighlighting();
             return 0;
         }
         if(checker.isValid()){
@@ -44,27 +46,61 @@ bool MainController::parsingCalibrateOrTermoCalibrate()
     return 0;
 }
 
-void MainController::processingCalibrate()
+bool MainController::processingCalibrate()
 {
     if(parsingCalibrateOrTermoCalibrate()){
         if(p_type==0){
             GetterInputData getter;
             parser->accept(&getter);
             InputCalibrateData *d=getter.getInputData();
-            QString txt;
-            for (const auto& v : d->data) {
-                txt+="Сектор №"+QString::number(v.first)+"<br>";
-                foreach (InputCalibrateData::FormatStr value, v.second) {
-                    txt+="Aцу = "+QString::number(value.Acu.toDegrees())+
-                            " Bцу = "+QString::number(value.Bcu.toDegrees())+
-                            " Aизм = "+QString::number(value.Aizm.toDegrees())+
-                            " Bизм = "+QString::number(value.Bizm.toDegrees())+
-                            "<br>";
-                }
-            }
-            ErrorsHandle::sendMessage(txt);
+            displayCalibrate(d);
+            CalculatorCalibrateData calculator(d);
+            calculator.process();
+            resultTxt=calculator.result();
+            ErrorsHandle::sendMessage(resultTxt);
+            return 1;
+        }
+    }else
+        return 0;
+}
+
+void MainController::displayCalibrate(InputCalibrateData *d) const
+{
+    QString txt;
+    for (const auto& v : d->data) {
+        txt+="Сектор №"+QString::number(v.first+1)+"<br>";
+        foreach (InputCalibrateData::FormatStr value, v.second) {
+            txt+="Aцу = "+QString::number(value.Acu.toDegrees())+
+                    " Bцу = "+QString::number(value.Bcu.toDegrees())+
+                    " Aизм = "+QString::number(value.Aizm.toDegrees())+
+                    " Bизм = "+QString::number(value.Bizm.toDegrees())+
+                    "<br>";
         }
     }
+    ErrorsHandle::sendMessage(txt);
+}
+
+QString MainController::result() const
+{
+    return resultTxt;
+}
+
+void MainController::saveResultToFile(const QUrl &path) const
+{
+    QString pathToFile=path.toLocalFile();
+    if(!pathToFile.isEmpty()){
+        if(!pathToFile.endsWith(".cfg"))
+            pathToFile.append(".cfg");
+    }
+    QFile file(pathToFile);
+    if(!file.open(QIODevice::WriteOnly)){
+        ErrorsHandle::sendMessage("Not saved",ErrorsHandle::Error);return;
+    }
+    QTextStream stream_file(&file);
+    QString result=doc->document()->textDocument()->toPlainText();
+    stream_file<<result;
+    file.close();
+    ErrorsHandle::sendMessage("Saved",ErrorsHandle::Good);
 }
 
 DocumentHandler *MainController::docHandler() const
@@ -101,11 +137,14 @@ MainController *MainController::getInstance()
         return p_contr;
 }
 
-void MainController::process()
+bool MainController::process()
 {
     if(p_type==0||p_type==1){
         ErrorsHandle::sendMessage("Start parsing...");
-        processingCalibrate();
+        if(processingCalibrate())
+            return 1;
+        else
+            return 0;
     }
 }
 
